@@ -6,7 +6,7 @@ on:
         image_tag:
           description: Docker image tag to scan
           required: true
-          default: v1.2.0
+          default: v1.2.1
     push:
       branches:
         - main
@@ -34,7 +34,7 @@ jobs:
           run: |
             TAG="${{ github.event.inputs.image_tag }}"
             if [ -z "$TAG" ]; then
-              TAG="v1.2.0"
+              TAG="v1.2.1"
             fi
             echo "tag=$TAG" >> "$GITHUB_OUTPUT"
 
