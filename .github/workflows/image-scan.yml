@@ -8,6 +8,9 @@
           description: Docker image tag to scan
           required: true
           default: v1.2.0
+    push:
+      branches:
+        - main
 
   jobs:
     trivy-scan:
@@ -37,8 +40,6 @@
             echo "tag=$TAG" >> "$GITHUB_OUTPUT"
 
         - name: Run Trivy scan and save report
-          uses: aquasecurity/trivy-action@0.24.0
-          with:
             image-ref: ${{ matrix.image.ref }}:${{ steps.vars.outputs.tag }}
             format: table
             severity: HIGH,CRITICAL
