@@ -1,6 +1,6 @@
 name: Image Security Scan
 
-  on:
+on:
     workflow_dispatch:
       inputs:
         image_tag:
@@ -11,7 +11,7 @@ name: Image Security Scan
       branches:
         - main
 
-  jobs:
+jobs:
     trivy-scan:
       runs-on: ubuntu-latest
 
