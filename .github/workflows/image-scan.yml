@@ -1,0 +1,63 @@
+
+  name: Image Security Scan
+
+  on:
+    workflow_dispatch:
+      inputs:
+        image_tag:
+          description: Docker image tag to scan
+          required: true
+          default: v1.2.0
+
+  jobs:
+    trivy-scan:
+      runs-on: ubuntu-latest
+
+      strategy:
+        fail-fast: false
+        matrix:
+          image:
+            - name: frontend
+              ref: chigoldd/techbleat-frontend
+            - name: user-service
+              ref: chigoldd/techbleat-user-service
+            - name: transaction-service
+              ref: chigoldd/techbleat-transaction-service
+            - name: activity-service
+              ref: chigoldd/techbleat-activity-service
+
+      steps:
+        - name: Set image tag
+          id: vars
+          run: |
+            TAG="${{ github.event.inputs.image_tag }}"
+            if [ -z "$TAG" ]; then
+              TAG="v1.2.0"
+            fi
+            echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+
+        - name: Run Trivy scan and save report
+          uses: aquasecurity/trivy-action@0.24.0
+          with:
+            image-ref: ${{ matrix.image.ref }}:${{ steps.vars.outputs.tag }}
+            format: table
+            severity: HIGH,CRITICAL
+            ignore-unfixed: true
+            output: trivy-${{ matrix.image.name }}-${{ steps.vars.outputs.tag }}.txt
+            exit-code: "0"
+
+        - name: Upload Trivy report
+          uses: actions/upload-artifact@v4
+          if: always()
+          with:
+            name: trivy-${{ matrix.image.name }}-${{ steps.vars.outputs.tag }}
+            path: trivy-${{ matrix.image.name }}-${{ steps.vars.outputs.tag }}.txt
+
+        - name: Fail on critical vulnerabilities
+          uses: aquasecurity/trivy-action@0.24.0
+          with:
+            image-ref: ${{ matrix.image.ref }}:${{ steps.vars.outputs.tag }}
+            format: table
+            severity: CRITICAL
+            ignore-unfixed: true
+            exit-code: "1"
