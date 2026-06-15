@@ -1,5 +1,4 @@
-
-  name: Image Security Scan
+ name: Image Security Scan
 
   on:
     workflow_dispatch:
@@ -40,7 +39,9 @@
             echo "tag=$TAG" >> "$GITHUB_OUTPUT"
 
         - name: Run Trivy scan and save report
-            image-ref: ${{ matrix.image.ref }}:${{ steps.vars.outputs.tag }}
+          uses: aquasecurity/trivy-action@0.24.0
+          with:
+            image-ref: "${{ matrix.image.ref }}:${{ steps.vars.outputs.tag }}"
             format: table
             severity: HIGH,CRITICAL
             ignore-unfixed: true
@@ -57,7 +58,7 @@
         - name: Fail on critical vulnerabilities
           uses: aquasecurity/trivy-action@0.24.0
           with:
-            image-ref: ${{ matrix.image.ref }}:${{ steps.vars.outputs.tag }}
+            image-ref: "${{ matrix.image.ref }}:${{ steps.vars.outputs.tag }}"
             format: table
             severity: CRITICAL
             ignore-unfixed: true
