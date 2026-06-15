@@ -1,4 +1,4 @@
- name: Image Security Scan
+name: Image Security Scan
 
   on:
     workflow_dispatch:
